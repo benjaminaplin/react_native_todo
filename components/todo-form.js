@@ -16,6 +16,7 @@ export default class TodoForm extends Component {
   }
 
   submitTodo() {
+    const { getTodos } = this.props
     fetch("http://localhost:3000/todos", {
       method: "POST",
       headers: new Headers({
@@ -27,9 +28,7 @@ export default class TodoForm extends Component {
       })
     })
       .then(response => response.json())
-      .then(todos =>
-        console.log(todos)
-      )
+      .then(() => getTodos())
       .catch(err => console.log("error fetching", err));
     this.setState({ todo: '' })
   }
@@ -53,7 +52,7 @@ export default class TodoForm extends Component {
 }
 
 TodoForm.propTypes = {
-  onNewColor: React.PropTypes.func.isRequired
+  getTodos: React.PropTypes.func.isRequired
 }
 
 const styles = StyleSheet.create({
