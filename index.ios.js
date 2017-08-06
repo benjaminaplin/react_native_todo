@@ -1,27 +1,27 @@
 import React, { Component } from "react";
 import {
-  StatusBar,
-  Image,
   AppRegistry,
   StyleSheet,
   Text,
-  View,
-  ScrollView,
-  ActivityIndicator,
-  Dimensions,
-  TouchableHighlight
+  ListView,
+  Dimensions
 } from "react-native";
-import picSierra from "./assets/Sierra-Spencer.png";
-import picTanner from "./assets/Tanner-McTab.png";
+
+import TodoForm from "./components/todo-form"
+import ColorButton from "./components/color-button"
 
 export default class HelloWorld extends Component {
   constructor() {
     super();
+
+    this.ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2
+    })
+    this.todos = []
     this.state = {
       todos: [],
       fetching: false,
-      backgroundColor: 'grey',
-      todoColor: 'red'
+      dataSource: this.ds.cloneWithRows(this.todos)
     };
   }
 
@@ -32,7 +32,7 @@ export default class HelloWorld extends Component {
       .then(todos =>
         // console.log(todos)
         this.setState({
-          todos: todos,
+          dataSource: this.ds.cloneWithRows(todos),
           fetching: false
         })
       )
@@ -44,30 +44,18 @@ export default class HelloWorld extends Component {
   }
 
   render() {
-    const { todos, todoColor, backgroundColor } = this.state;
     return (
-      <ScrollView style={
-        styles.container
-      }>
-        <ActivityIndicator
-          size="large"
-          style={styles.spinner}
-          animating={this.state.fetching}
-        />
-        {todos.length > 0 &&
-          todos.map((todo, i) => (
-            <View style={styles.row} key={i}>
-              <View style={[styles.sample, { backgroundColor: 'yellow' }]} />
-              <Text
-                onPress={() => this.changeColor('green')}
-                style={[styles.todo, { backgroundColor: this.state.todoColor }]}
-              >
-                {todo.todo}
-              </Text>
-              <Text style={styles.completed}>{todo.completed}</Text>
-            </View>
-          ))}
-      </ScrollView>
+      <ListView
+        style={styles.container}
+        dataSource={this.state.dataSource}
+        renderRow={(todo) => (
+          <Text style={todo.completed ? styles.completed : styles.notCompleted}>{todo.todo} </Text>
+        )}
+        renderHeader={() => (
+          <TodoForm />
+        )}
+      >
+      </ListView>
     );
   }
 }
@@ -75,7 +63,8 @@ export default class HelloWorld extends Component {
 const styles = StyleSheet.create({
   container: {
     paddingTop: 25,
-    backgroundColor: "grey"
+    backgroundColor: "lightgrey",
+    flex: 1
   },
   row: {
     flexDirection: 'row',
@@ -92,20 +81,8 @@ const styles = StyleSheet.create({
     fontSize: 30,
     margin: 5
   },
-  // button: {
-  //   margin: 10,
-  //   padding: 10,
-  //   borderWidth: 2,
-  //   borderRadius: 10,
-  //   alignSelf: 'stretch',
-  //   backgroundColor: 'rgba(255,255,255,.8)'
-  // },
-  spinner: {
-    position: "absolute",
-    height: Dimensions.get("window").height,
-    width: Dimensions.get("window").width
-  },
-  todo: {
+  completed: {
+    color: 'blue',
     fontSize: 30,
     margin: 10,
     padding: 10,
@@ -114,12 +91,37 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     textAlign: 'center'
   },
-  completed: {
-    fontSize: 16
+  notCompleted: {
+    color: 'salmon',
+    fontSize: 30,
+    margin: 10,
+    padding: 10,
+    borderWidth: 2,
+    borderRadius: 10,
+    alignSelf: 'stretch',
+    textAlign: 'center'
   },
-  accountNumber: {
-    fontSize: 15
+  spinner: {
+    position: "absolute",
+    height: Dimensions.get("window").height,
+    width: Dimensions.get("window").width
+  },
+  todo: {
+
+  },
+  header: {
+    fontSize: 30,
+    backgroundColor: 'grey',
+    paddingTop: 20,
+    padding: 10,
+    textAlign: 'center'
   }
 });
 
 AppRegistry.registerComponent("HelloWorld", () => HelloWorld);
+
+        // <ActivityIndicator
+        //   size="large"
+        //   style={styles.spinner}
+        //   animating={this.state.fetching}
+        // />
